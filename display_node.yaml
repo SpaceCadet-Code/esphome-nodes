@@ -1,30 +1,40 @@
 esphome:
-  name: display_node
-  platform: ESP32
-  board: esp32dev
+  name: epaper-display
+  platform: ESP8266
+  board: d1
   on_boot:
-      - output.turn_off: onboard_led
-
+    priority: -10
+    then:
+      - delay: 10s
+      - component.update: epaperdisplay
+      
 wifi:
-  ssid: "Fredrik_AP"
+  ssid: !secret wifi_ssid
   password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Espforcast Fallback Hotspot"
+    password: "Password"
+
+captive_portal:
 
 # Enable logging
 logger:
 
 # Enable Home Assistant API
 api:
-  password: !secret api_password
 
 ota:
-  password: !secret ota_password
 
 spi:
-  clk_pin: 13
-  mosi_pin: 14
+  clk_pin: 14
+  mosi_pin: 13
+  
 
-# s= '@!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz.'
-# print([','.join(_) for _ in s])
+dallas:
+  - pin: GPIO5
+    update_interval: 600s
 
 font:
   - file: 'fonts/Google_Sans_Bold.ttf'
@@ -55,100 +65,106 @@ font:
     id: icon_font
     size: 32
     glyphs: [
-      '', # mdi-account-heart
-      '', # mdi-thermometer
-      '󰅢', # mdi-fire-hydrant
-      "", # mdi-umbrella
-      "ｲ", # mdi-home-thermometer-outline
-      "ｱ", # mdi-home-thermometer
+      '\U000F0899', # mdi-account-heart
+      '\U000F050F', # mdi-thermometer
+      '\U000F1137', # mdi-fire-hydrant
+      "\U000F054A", # mdi-umbrella
+      "\U000F0F55", # mdi-home-thermometer-outline
+      "\U000F0F54", # mdi-home-thermometer
       # Wifi
-      '冷', # mdi-wifi-strength-outline
-      '爛', # mdi-wifi-strength-1
-      '嵐', # mdi-wifi-strength-2
-      '襤', # mdi-wifi-strength-3
-      '蠟', # mdi-wifi-strength-4
+      '\U000F092F', # mdi-wifi-strength-outline
+      '\U000F091F', # mdi-wifi-strength-1
+      '\U000F0922', # mdi-wifi-strength-2
+      '\U000F0925', # mdi-wifi-strength-3
+      '\U000F0928', # mdi-wifi-strength-4
       # Weather
-      "", # mdi-weather-sunny
-      "", # mdi-weather-night
-      "", # mdi-weather-cloudy
-      "", # mdi-weather-pouring
-      "", # mdi-weather-snowy-rainy
-      "ｓ", # mdi-weather-snowy-heavy
-      "", # mdi-weather-windy-variant
-      "", # mdi-weather-fog
-      "ｎ", # mdi-weather-night-partly-cloudy
-      "", # mdi-weather-partly-cloudy
+      "\U000F0599", # mdi-weather-sunny
+      "\U000F0594", # mdi-weather-night
+      "\U000F0590", # mdi-weather-cloudy
+      "\U000F0597", # mdi-weather-pouring
+      "\U000F0F35", # mdi-weather-snowy-rainy
+      "\U000F0598", # mdi-weather-snowy-heavy
+      "\U000F059D", # mdi-weather-windy-variant
+      "\U000F0591", # mdi-weather-fog
+      "\U000F0F31", # mdi-weather-night-partly-cloudy
+      "\U000F0595", # mdi-weather-partly-cloudy
       # Moon
-      "ﾁ", # new_moon
-      "ﾄ", # waxing_crecent
-      "ｾ", # first_quarter
-      "ﾅ", # waxing_gibbous
-      "ｿ", # full_moon
-      "ﾃ", # waning_gibbous
-      "ﾀ", # last_quarter
-      "ﾂ", # waning_crescent
+      "\U000F0F64", # new_moon
+      "\U000F0F65", # waxing_crecent
+      "\U000F0F61", # first_quarter
+      "\U000F0F68", # waxing_gibbous
+      "\U000F0F62", # full_moon
+      "\U000F0F66", # waning_gibbous
+      "\U000F0F63", # last_quarter
+      "\U000F0F67", # waning_crescent
       # Sun
-      "", # mdi-weather-sunset-down
-      "", # mdi-weather-sunset-up
+      "\U000F059A", # mdi-weather-sunset-down
+      "\U000F059C", # mdi-weather-sunset-up
       ]
   - file: 'fonts/materialdesignicons-webfont.ttf'
     id: weather_font
-    size: 50
+    size: 40
     glyphs: [
-      '', # mdi-account-heart
-      '', # mdi-thermometer
-      '󰅢', # mdi-fire-hydrant
-      "", # mdi-umbrella
-      "ｲ", # mdi-home-thermometer-outline
+     '\U000F0899', # mdi-account-heart
+      '\U000F050F', # mdi-thermometer
+      '\U000F1137', # mdi-fire-hydrant
+      "\U000F054A", # mdi-umbrella
+      "\U000F0F55", # mdi-home-thermometer-outline
       # Wifi
-      '冷', # mdi-wifi-strength-outline
-      '爛', # mdi-wifi-strength-1
-      '嵐', # mdi-wifi-strength-2
-      '襤', # mdi-wifi-strength-3
-      '蠟', # mdi-wifi-strength-4
+      '\U000F092F', # mdi-wifi-strength-outline
+      '\U000F091F', # mdi-wifi-strength-1
+      '\U000F0922', # mdi-wifi-strength-2
+      '\U000F0925', # mdi-wifi-strength-3
+      '\U000F0928', # mdi-wifi-strength-4
       # Weather
-      "", # mdi-weather-sunny
-      "", # mdi-weather-night
-      "", # mdi-weather-cloudy
-      "", # mdi-weather-pouring
-      "", # mdi-weather-snowy-rainy
-      "ｓ", # mdi-weather-snowy-heavy
-      "", # mdi-weather-windy-variant
-      "", # mdi-weather-fog
-      "ｎ", # mdi-weather-night-partly-cloudy
-      "", # mdi-weather-partly-cloudy
+      "\U000F0599", # mdi-weather-sunny
+      "\U000F0594", # mdi-weather-night
+      "\U000F0590", # mdi-weather-cloudy
+      "\U000F0597", # mdi-weather-pouring
+      "\U000F0F35", # mdi-weather-snowy-rainy
+      "\U000F0598", # mdi-weather-snowy-heavy
+      "\U000F059D", # mdi-weather-windy-variant
+      "\U000F0591", # mdi-weather-fog
+      "\U000F0F31", # mdi-weather-night-partly-cloudy
+      "\U000F0595", # mdi-weather-partly-cloudy
       # Moon
-      "ﾁ", # new_moon
-      "ﾄ", # waxing_crecent
-      "ｾ", # first_quarter
-      "ﾅ", # waxing_gibbous
-      "ｿ", # full_moon
-      "ﾃ", # waning_gibbous
-      "ﾀ", # last_quarter
-      "ﾂ", # waning_crescent
+      "\U000F0F64", # new_moon
+      "\U000F0F65", # waxing_crecent
+      "\U000F0F61", # first_quarter
+      "\U000F0F68", # waxing_gibbous
+      "\U000F0F62", # full_moon
+      "\U000F0F66", # waning_gibbous
+      "\U000F0F63", # last_quarter
+      "\U000F0F67", # waning_crescent
       ]
 
 
 display:
   - platform: waveshare_epaper
-    id: epaper
+    id: epaperdisplay
     cs_pin: 15
-    busy_pin: 25
-    reset_pin: 26
-    dc_pin: 27
+    busy_pin: 16
+    reset_pin: 4
+    dc_pin: 12
     model: 4.20in
-    rotation: 180°
-    # full_update_every: 30
-    update_interval: 3600s
+    #rotation: 180°
+    #full_update_every: 30
+     # full_update_every: 30
+    update_interval: 900s
     lambda: |
       int x, y;
       ESP_LOGI("display", "Updating..");
-
       /* Print time in HH:MM format */
       it.strftime(125, -10, id(clock_font), TextAlign::TOP_CENTER, "%H:%M", id(current_time).now());
-
-      it.line(259, -10, 259, 200);it.line(261, 0, 261, 200);it.line(260, 0, 260, 200);
-      it.line(0, 200, 259, 200);it.line(0, 201, 261, 201);it.line(0, 202, 260, 202);
+      
+      it.line(240, -10, 240, 200);
+      it.line(241, 0, 241, 200);
+      it.line(242, 0, 242, 200);
+      
+      it.line(0, 200, 242, 200);
+      it.line(0, 201, 242, 201);
+      it.line(0, 202, 242, 202);
+      
       /*
       it.print(125, 120, id(temp_font), TextAlign::BASELINE_CENTER, "HELLO SUNSHINE!");
       it.print(125, 160, id(icon_font), TextAlign::BASELINE_CENTER, "");
@@ -156,36 +172,35 @@ display:
       */
       /* Moon icon */
       if(id(moon_icon).has_state()) {
-        y = 155, x = 230;
+        y = 155, x = 225;
         ESP_LOGI("Moon icon", "%s", id(moon_icon).state.c_str());
         it.printf(x, y, id(weather_font), TextAlign::BASELINE_CENTER, "%s", id(moon_icon).state.c_str());
       }
       /* WiFi Signal Strenght */
       if(id(wifisignal).has_state()) {
-        x = 398, y = 298;
+        x = 398, y = 220;
         if (id(wifisignal).state >= -50) {
             //Excellent
-            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "蠟");
+            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0925");
             ESP_LOGI("WiFi", "Exellent");
         } else if (id(wifisignal).state  >= -60) {
             //Good
-            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "襤");
+            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0925");
             ESP_LOGI("WiFi", "Good");
         } else if (id(wifisignal).state  >= -67) {
             //Fair
-            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "嵐");
+            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0922");
             ESP_LOGI("WiFi", "Fair");
         } else if (id(wifisignal).state  >= -70) {
             //Weak
-            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "爛");
+            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F091F");
             ESP_LOGI("WiFi", "Weak");
         } else {
             //Unlikely working signal
-            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "冷");
+            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F092F");
             ESP_LOGI("WiFi", "Unlikely");
         }
       }
-
       // Current weather
       if(id(weather_forecast_today).has_state()) {
         std::string str = id(weather_forecast_today).state;
@@ -207,7 +222,7 @@ display:
                 "%s", str.substr(previous, current - previous).c_str());
               */
             } else if (i == 2) { // Chance for rain
-              it.printf(x, y + 2, id(icon_font), TextAlign::TOP_LEFT, ""); // Umbrella
+              it.printf(x, y + 2, id(icon_font), TextAlign::TOP_LEFT, "\U000F054A"); // Umbrella
               it.printf(x + 30, y + 10, id(status_font),
                 TextAlign::TOP_LEFT,
                 "%s%%", str.substr(previous, current - previous).c_str());
@@ -217,27 +232,23 @@ display:
             current = str.find(delim, previous);
         }
       }
-
       // Print inside temperature (from homeassistant sensor)
       y = 135, x = 102;
       if (id(inside_temperature).has_state()) {
-        it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "ｱ");
+        it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0F55");
         it.printf(x+2, y, id(temp_font), TextAlign::BOTTOM_LEFT , "%5.1f°", id(inside_temperature).state);
       }
       // Print outside temperature (from homeassistant sensor)
       if (id(outside_temperature).has_state()) {
-        it.print(x, y, id(icon_font), TextAlign::TOP_RIGHT, "ｲ"); 
+        it.print(x, y, id(icon_font), TextAlign::TOP_RIGHT, "\U000F0F54"); 
         it.printf(x+2, y, id(temp_font), TextAlign::TOP_LEFT, "%5.1f°", id(outside_temperature).state);
       }
-
       // Print consumer
       if (id(top_consumer).has_state()) {
-        it.printf(0, 295, id(status_font), TextAlign::BOTTOM_LEFT , "Total: %.0f W, %s W", id(sparsnas).state, id(top_consumer).state.c_str());
-
+        it.printf(0, 220, id(status_font), TextAlign::BOTTOM_LEFT , "Total: %.0f W, %s W", id(sparsnas).state, id(top_consumer).state.c_str());
       }
       // it.line(0, 299, 400, 299);
-
-      // std::string str = "mon:cloud:12.1:30%:tue:rain:10.2:40%:wed:sunny:18.0:0%:thu:snow:-12.2:10%";
+     
       if(id(weather_forecast).has_state()) {
         std::string str = id(weather_forecast).state;
         ESP_LOGI("Weather", "%s", str.c_str());
@@ -249,7 +260,7 @@ display:
           ESP_LOGI("t", "%d", i);
           for (int j=0; j<4; j++) {
             if(j == 1) {  // Weather icon.
-              it.printf(x - 65, y + 25, id(weather_font),
+              it.printf(x - 90, y + 25, id(weather_font),
                 TextAlign::BASELINE_LEFT,
                 "%s", str.substr(previous, current - previous).c_str());
             } else {
@@ -267,6 +278,7 @@ display:
           y += 2;
         }
       }
+
 output:
   - platform: gpio
     id: onboard_led
@@ -282,23 +294,22 @@ light:
 time:
   - platform: homeassistant
     id: current_time
-    timezone: Europe/Stockholm
-    on_time:
+    timezone: America/New_york
+#    on_time:
       # Every 1 minutes
-      - seconds: 0
-        then:
-          - component.update: epaper
-
+ #     - seconds: 0
+ #       then:
+ #         - component.update: epaperdisplay
 
 sensor:
   - platform: homeassistant
     id: inside_temperature
-    entity_id: sensor.vit_inne_temperature
+    entity_id: sensor.bedroomlamp1_ds18b20_temperature
     internal: true
-
+    
   - platform: homeassistant
     id: outside_temperature
-    entity_id: sensor.ute_temperature
+    entity_id: sensor.openweathermap_feels_like_temperature
     internal: true
 
   - platform: homeassistant
@@ -307,7 +318,7 @@ sensor:
     internal: true
 
   - platform: homeassistant
-    entity_id: sensor.dark_sky_precip_probability
+    entity_id: sensor.openweathermap_forecast_precipitation_probability
     id: precip_probability
     internal: true
 
@@ -315,6 +326,15 @@ sensor:
     name: "WiFi Signal Sensor"
     id: wifisignal
     update_interval: 60s
+    
+  - platform: dallas
+    address: 0x700516738E4FFF28
+    name: "Clock Temp"
+
+    
+  - platform: adc
+    pin: VCC
+    name: "VCC Voltage"
 
 text_sensor:
   - platform: homeassistant
@@ -337,4 +357,4 @@ text_sensor:
   - platform: homeassistant
     id: moon_icon
     entity_id: sensor.moon_tpl
-
+    internal: true
