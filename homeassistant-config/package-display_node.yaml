@@ -6,14 +6,14 @@ sensor:
         entity_id: sensor.moon
         value_template: >-
           {% set map = {
-            "new_moon": "ﾁ",
-            "waxing_crecent": "ﾂ",
-            "first_quarter": "ｾ",
-            "waxing_gibbous": "ﾃ",
-            "full_moon": "ｿ",
-            "waning_gibbous": "ﾃ",
-            "last_quarter": "ﾀ",
-            "waning_crescent": "ﾂ"
+            "new_moon": "\U000F0F64",
+            "waxing_crecent": "\U000F0F65",
+            "first_quarter": "\U000F0F61",
+            "waxing_gibbous": "\U000F0F68",
+            "full_moon": "\U000F0F62",
+            "waning_gibbous": "\U000F0F66",
+            "last_quarter": "\U000F0F63",
+            "waning_crescent": "\U000F0F67"
           } %}
           {{- map[states('sensor.moon')] -}}
   - platform: template
@@ -22,40 +22,22 @@ sensor:
         entity_id: sensor.time
         value_template: >-
           {% set weather = {
-            "clear-day": "", 
-            "clear-night": "", 
-            "cloudy": "", 
-            "rain": "", 
-            "sleet": "", 
-            "snow": "ｓ", 
-            "wind": "", 
-            "fog": "", 
-            "partly-cloudy-day": "", 
-            "partly-cloudy-night": "ｎ" 
+            "sunny": "\U000F0599", 
+            "clear-night": "\U000F0594", 
+            "cloudy": "\U000F0590", 
+            "rainy": "\U000F0597", 
+            "sleet": "\U000F0F35", 
+            "snow": "\U000F0598", 
+            "wind": "\U000F059D", 
+            "fog": "\U000F0591", 
+            "partlycloudy": "\U000F0595", 
+            "partly-cloudy-night": "\U000F0F31" 
           } %}
-          {% set base = 'sensor.dark_sky_forecast_' %}
-
-          {{- weather[states('{}icon_{}d'.format(base, 0))] -}};
-          {{- states('{}apparent_temperature'.format(base)) -}}°;
-          {{- states('{}precip_probability_{}d'.format(base, 0))|int -}}
-  - platform: darksky #https://pastebin.com/iX7u4ZSg
-    api_key: !secret darksky_api_key
-    name: dark_sky_forecast
-    scan_interval: '00:10'
-    forecast:
-      - 0
-      - 1
-      - 2
-      - 3
-      - 4
-    monitored_conditions:
-      - icon
-      - temperature
-      - apparent_temperature
-      - temperature_high
-      - temperature_low
-      - precip_probability
-      - precip_intensity
+          {% set base = 'sensor.openweathermap_' %}
+          {{- weather[states('{}condition' .format(base))] -}};
+          {{- states('{}temperature'.format(base)) -}}°;
+          {{- states('{}forecast_precipitation_probability'.format(base, 0))|int -}};
+         
   - platform: template
     sensors:
       forecast:
@@ -70,40 +52,36 @@ sensor:
            5: "Sat",
            6: "Sun"
           } %}
-
           {% set weather = {
-            "clear-day": "mdi:weather-sunny",
+            "sunny": "mdi:weather-sunny",
             "clear-night": "mdi:weather-night",
             "cloudy": "mdi:weather-cloudy",
-            "rain": "mdi:weather-pouring",
+            "rainy": "mdi:weather-pouring",
             "sleet": "mdi:weather-snowy-rainy",
             "snow": "mdi:weather-snowy",
             "wind": "mdi:weather-windy",
             "fog": "mdi:weather-fog",
-            "partly-cloudy-day": "mdi:weather-partly-cloudy",
+            "partlycloudy": "mdi:weather-partly-cloudy",
             "partly-cloudy-night": "mdi:weather-night-partly-cloudy"
           } %}
           {% set weather = {
-            "clear-day": "", 
-            "clear-night": "", 
-            "cloudy": "", 
-            "rain": "", 
-            "sleet": "", 
-            "snow": "ｓ", 
-            "wind": "", 
-            "fog": "", 
-            "partly-cloudy-day": "", 
-            "partly-cloudy-night": "ｎ" 
+            "sunny": "\U000F0599", 
+            "clear-night": "\U000F0594", 
+            "cloudy": "\U000F0590", 
+            "rainy": "\U000F0597", 
+            "sleet": "\U000F0F35", 
+            "snow": "\U000F0598", 
+            "wind": "\U000F059D", 
+            "fog": "\U000F0591", 
+            "partlycloudy": "\U000F0595", 
+            "partly-cloudy-night": "\U000F0F31" 
           } %}
-
-          {% set base = 'sensor.dark_sky_forecast_' %}
-
+          {% set base = 'weather.openweathermap_' %}
           {%- for i in [ 1, 2, 3, 4] -%}
             {{ dow[(now().weekday() + i) % 7]  }};
-            {{- weather[states('{}icon_{}d'.format(base, i))] -}};
-            {{- states('{}daytime_high_temperature_{}d'.format(base, i))|int
-            -}}°/
-            {{- states('{}overnight_low_temperature_{}d'.format(base, i))|int -}}°;
-            {{- states('{}precip_probability_{}d'.format(base, i))|int -}}%
+            {{- weather[state_attr('weather.openweathermap', 'forecast')[i].condition]}};
+            {{- state_attr('weather.openweathermap', 'forecast')[i].temperature}}°/
+            {{- state_attr('weather.openweathermap', 'forecast')[i].templow}}°;
+            {{- state_attr('weather.openweathermap', 'forecast')[i].precipitation_probability}}%
             {%- if not loop.last %};{% endif %}
           {%- endfor %}
