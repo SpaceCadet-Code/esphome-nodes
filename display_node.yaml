@@ -39,7 +39,7 @@ dallas:
 font:
   - file: 'fonts/Google_Sans_Bold.ttf'
     id: clock_font
-    size: 90
+    size: 80
     glyphs: [0, 1, 2, 3, 4, 5, 6, 7 ,8, 9, ':']
   - file: 'fonts/Google_Sans_Medium.ttf'
     id: temp_font
@@ -81,7 +81,8 @@ font:
       "\U000F0599", # mdi-weather-sunny
       "\U000F0594", # mdi-weather-night
       "\U000F0590", # mdi-weather-cloudy
-      "\U000F0597", # mdi-weather-pouring
+      "\U000F0597", # mdi-weather-rainy
+      "\U000F0596", # mdi-weather-pouring
       "\U000F0F35", # mdi-weather-snowy-rainy
       "\U000F0598", # mdi-weather-snowy-heavy
       "\U000F059D", # mdi-weather-windy-variant
@@ -120,7 +121,8 @@ font:
       "\U000F0599", # mdi-weather-sunny
       "\U000F0594", # mdi-weather-night
       "\U000F0590", # mdi-weather-cloudy
-      "\U000F0597", # mdi-weather-pouring
+      "\U000F0597", # mdi-weather-rainy
+      "\U000F0596", # mdi-weather-pouring
       "\U000F0F35", # mdi-weather-snowy-rainy
       "\U000F0598", # mdi-weather-snowy-heavy
       "\U000F059D", # mdi-weather-windy-variant
@@ -147,9 +149,6 @@ display:
     reset_pin: 4
     dc_pin: 12
     model: 4.20in
-    #rotation: 180°
-    #full_update_every: 30
-     # full_update_every: 30
     update_interval: 900s
     lambda: |
       int x, y;
@@ -165,43 +164,38 @@ display:
       it.line(0, 201, 242, 201);
       it.line(0, 202, 242, 202);
       
-      /*
-      it.print(125, 120, id(temp_font), TextAlign::BASELINE_CENTER, "HELLO SUNSHINE!");
-      it.print(125, 160, id(icon_font), TextAlign::BASELINE_CENTER, "");
-      it.print(125, 182, id(temp_font), TextAlign::BASELINE_CENTER, "Lea & Emma"); // 400 - ((400 - 260)/2)
-      */
-      /* Moon icon */
+       /*Moon icon */
       if(id(moon_icon).has_state()) {
         y = 155, x = 225;
         ESP_LOGI("Moon icon", "%s", id(moon_icon).state.c_str());
         it.printf(x, y, id(weather_font), TextAlign::BASELINE_CENTER, "%s", id(moon_icon).state.c_str());
       }
       /* WiFi Signal Strenght */
-      if(id(wifisignal).has_state()) {
-        x = 398, y = 220;
-        if (id(wifisignal).state >= -50) {
-            //Excellent
+      if(id(clock_wifisignal).has_state()) {
+        x = 398, y = 298;
+        if (id(clock_wifisignal).state >= -50) {
+            /*Excellent*/
             it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0925");
             ESP_LOGI("WiFi", "Exellent");
-        } else if (id(wifisignal).state  >= -60) {
-            //Good
+        } else if (id(clock_wifisignal).state  >= -60) {
+            /*Good*/
             it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0925");
             ESP_LOGI("WiFi", "Good");
-        } else if (id(wifisignal).state  >= -67) {
-            //Fair
+        } else if (id(clock_wifisignal).state  >= -67) {
+            /*Fair*/
             it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0922");
             ESP_LOGI("WiFi", "Fair");
-        } else if (id(wifisignal).state  >= -70) {
-            //Weak
+        } else if (id(clock_wifisignal).state  >= -70) {
+            /*Weak*/
             it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F091F");
             ESP_LOGI("WiFi", "Weak");
         } else {
-            //Unlikely working signal
+            /*Unlikely working signal*/
             it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F092F");
             ESP_LOGI("WiFi", "Unlikely");
         }
       }
-      // Current weather
+      /*Current weather*/
       if(id(weather_forecast_today).has_state()) {
         std::string str = id(weather_forecast_today).state;
         ESP_LOGI("Weather", "%s", str.c_str());
@@ -217,22 +211,18 @@ display:
             } else if (i == 1) {
               ESP_LOGD("weather","%dx%d %s", (i % 1 ? 270 : 320), x,
                 str.substr(previous, current - previous).c_str());
-              /* it.printf(y, x, id(status_font),
-                TextAlign::TOP_LEFT,
-                "%s", str.substr(previous, current - previous).c_str());
-              */
-            } else if (i == 2) { // Chance for rain
+            } else if (i == 2) { /* Chance for rain*/
               it.printf(x, y + 2, id(icon_font), TextAlign::TOP_LEFT, "\U000F054A"); // Umbrella
               it.printf(x + 30, y + 10, id(status_font),
                 TextAlign::TOP_LEFT,
                 "%s%%", str.substr(previous, current - previous).c_str());
             }
-            // y += 100;
+            
             previous = current + 1;
             current = str.find(delim, previous);
         }
       }
-      // Print inside temperature (from homeassistant sensor)
+      /* Print inside temperature (from homeassistant sensor)*/
       y = 135, x = 102;
       if (id(inside_temperature).has_state()) {
         it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0F55");
@@ -247,7 +237,7 @@ display:
       if (id(top_consumer).has_state()) {
         it.printf(0, 220, id(status_font), TextAlign::BOTTOM_LEFT , "Total: %.0f W, %s W", id(sparsnas).state, id(top_consumer).state.c_str());
       }
-      // it.line(0, 299, 400, 299);
+       it.line(0, 299, 400, 299);
      
       if(id(weather_forecast).has_state()) {
         std::string str = id(weather_forecast).state;
@@ -256,10 +246,10 @@ display:
         char delim = ';';
         current = str.find(delim);
         int x = 340, y = 4;
-        for (int i=0; i<4; i++) {
+        for (int i=0; i<5; i++) {
           ESP_LOGI("t", "%d", i);
           for (int j=0; j<4; j++) {
-            if(j == 1) {  // Weather icon.
+            if(j == 1) {  /* Weather icon.*/
               it.printf(x - 90, y + 25, id(weather_font),
                 TextAlign::BASELINE_LEFT,
                 "%s", str.substr(previous, current - previous).c_str());
@@ -295,11 +285,6 @@ time:
   - platform: homeassistant
     id: current_time
     timezone: America/New_york
-#    on_time:
-      # Every 1 minutes
- #     - seconds: 0
- #       then:
- #         - component.update: epaperdisplay
 
 sensor:
   - platform: homeassistant
@@ -322,19 +307,22 @@ sensor:
     id: precip_probability
     internal: true
 
-  - platform: wifi_signal
-    name: "WiFi Signal Sensor"
-    id: wifisignal
-    update_interval: 60s
     
   - platform: dallas
     address: 0x700516738E4FFF28
     name: "Clock Temp"
+    internal: true
 
     
   - platform: adc
     pin: VCC
     name: "VCC Voltage"
+    internal: true
+    
+  - platform: wifi_signal
+    name: "WiFi Signal Sensor"
+    id: clock_wifisignal
+    update_interval: 60s
 
 text_sensor:
   - platform: homeassistant
