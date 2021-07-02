@@ -25,7 +25,8 @@ sensor:
             "sunny": "\U000F0599", 
             "clear-night": "\U000F0594", 
             "cloudy": "\U000F0590", 
-            "rainy": "\U000F0597", 
+            "rainy": "\U000F0597",
+            "pouring": "\U000F0596",
             "sleet": "\U000F0F35", 
             "snow": "\U000F0598", 
             "wind": "\U000F059D", 
@@ -56,7 +57,8 @@ sensor:
             "sunny": "mdi:weather-sunny",
             "clear-night": "mdi:weather-night",
             "cloudy": "mdi:weather-cloudy",
-            "rainy": "mdi:weather-pouring",
+            "rainy": "mdi:weather-rainy",
+            "pouring": "mdi:weather-pouring",
             "sleet": "mdi:weather-snowy-rainy",
             "snow": "mdi:weather-snowy",
             "wind": "mdi:weather-windy",
@@ -69,6 +71,7 @@ sensor:
             "clear-night": "\U000F0594", 
             "cloudy": "\U000F0590", 
             "rainy": "\U000F0597", 
+            "pouring": "\U000F0596",
             "sleet": "\U000F0F35", 
             "snow": "\U000F0598", 
             "wind": "\U000F059D", 
@@ -77,7 +80,7 @@ sensor:
             "partly-cloudy-night": "\U000F0F31" 
           } %}
           {% set base = 'weather.openweathermap_' %}
-          {%- for i in [ 1, 2, 3, 4] -%}
+          {%- for i in [ 0, 1, 2, 3, 4] -%}
             {{ dow[(now().weekday() + i) % 7]  }};
             {{- weather[state_attr('weather.openweathermap', 'forecast')[i].condition]}};
             {{- state_attr('weather.openweathermap', 'forecast')[i].temperature}}°/
