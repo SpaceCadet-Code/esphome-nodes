@@ -7,7 +7,7 @@ sensor:
         value_template: >-
           {% set map = {
             "new_moon": "\U000F0F64",
-            "waxing_crecent": "\U000F0F65",
+            "waxing_crescent": "\U000F0F65",
             "first_quarter": "\U000F0F61",
             "waxing_gibbous": "\U000F0F68",
             "full_moon": "\U000F0F62",
