@@ -65,25 +65,25 @@ font:
     id: icon_font
     size: 32
     glyphs: [
-      '\U000F0899', # mdi-account-heart
-      '\U000F050F', # mdi-thermometer
-      '\U000F1137', # mdi-fire-hydrant
+      "\U000F0899", # mdi-account-heart
+      "\U000F050F", # mdi-thermometer
+      "\U000F1137", # mdi-fire-hydrant
       "\U000F054A", # mdi-umbrella
       "\U000F0F55", # mdi-home-thermometer-outline
       "\U000F0F54", # mdi-home-thermometer
       # Wifi
-      '\U000F092F', # mdi-wifi-strength-outline
-      '\U000F091F', # mdi-wifi-strength-1
-      '\U000F0922', # mdi-wifi-strength-2
-      '\U000F0925', # mdi-wifi-strength-3
-      '\U000F0928', # mdi-wifi-strength-4
+      "\U000F092F", # mdi-wifi-strength-outline
+      "\U000F091F", # mdi-wifi-strength-1
+      "\U000F0922", # mdi-wifi-strength-2
+      "\U000F0925", # mdi-wifi-strength-3
+      "\U000F0928", # mdi-wifi-strength-4
       # Weather
       "\U000F0599", # mdi-weather-sunny
       "\U000F0594", # mdi-weather-night
       "\U000F0590", # mdi-weather-cloudy
       "\U000F0597", # mdi-weather-rainy
       "\U000F0596", # mdi-weather-pouring
-      "\U000F0F35", # mdi-weather-snowy-rainy
+      "\U000F067F", # mdi-weather-snowy-rainy
       "\U000F0598", # mdi-weather-snowy-heavy
       "\U000F059D", # mdi-weather-windy-variant
       "\U000F0591", # mdi-weather-fog
@@ -91,7 +91,7 @@ font:
       "\U000F0595", # mdi-weather-partly-cloudy
       # Moon
       "\U000F0F64", # new_moon
-      "\U000F0F65", # waxing_crecent
+      "\U000F0F65", # waxing_crescent
       "\U000F0F61", # first_quarter
       "\U000F0F68", # waxing_gibbous
       "\U000F0F62", # full_moon
@@ -106,24 +106,24 @@ font:
     id: weather_font
     size: 40
     glyphs: [
-     '\U000F0899', # mdi-account-heart
-      '\U000F050F', # mdi-thermometer
-      '\U000F1137', # mdi-fire-hydrant
+      "\U000F0899", # mdi-account-heart
+      "\U000F050F", # mdi-thermometer
+      "\U000F1137", # mdi-fire-hydrant
       "\U000F054A", # mdi-umbrella
       "\U000F0F55", # mdi-home-thermometer-outline
       # Wifi
-      '\U000F092F', # mdi-wifi-strength-outline
-      '\U000F091F', # mdi-wifi-strength-1
-      '\U000F0922', # mdi-wifi-strength-2
-      '\U000F0925', # mdi-wifi-strength-3
-      '\U000F0928', # mdi-wifi-strength-4
+      "\U000F092F", # mdi-wifi-strength-outline
+      "\U000F091F", # mdi-wifi-strength-1
+      "\U000F0922", # mdi-wifi-strength-2
+      "\U000F0925", # mdi-wifi-strength-3
+      "\U000F0928", # mdi-wifi-strength-4
       # Weather
       "\U000F0599", # mdi-weather-sunny
       "\U000F0594", # mdi-weather-night
       "\U000F0590", # mdi-weather-cloudy
       "\U000F0597", # mdi-weather-rainy
       "\U000F0596", # mdi-weather-pouring
-      "\U000F0F35", # mdi-weather-snowy-rainy
+      "\U000F067F", # mdi-weather-snowy-rainy
       "\U000F0598", # mdi-weather-snowy-heavy
       "\U000F059D", # mdi-weather-windy-variant
       "\U000F0591", # mdi-weather-fog
@@ -140,6 +140,71 @@ font:
       "\U000F0F67", # waning_crescent
       ]
 
+time:
+  - platform: sntp
+    id: current_time
+    timezone: UTC−05:00
+
+sensor:
+  - platform: homeassistant
+    id: inside_temperature
+    entity_id: sensor.bedroomlamp1_ds18b20_temperature
+    internal: true
+    
+  - platform: homeassistant
+    id: outside_temperature
+    entity_id: sensor.openweathermap_feels_like_temperature
+    internal: true
+    
+  - platform: homeassistant
+    entity_id: sensor.sparsnas_energy_consumption_momentary
+    id: sparsnas
+    internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.openweathermap_forecast_precipitation_probability
+    id: precip_probability
+    internal: true
+
+    
+  - platform: dallas
+    address: 0x700516738E4FFF28
+    name: "Clock Temp"
+    internal: true
+
+  - platform: adc
+    pin: VCC
+    name: "VCC Voltage"
+    internal: true
+    
+  - platform: wifi_signal
+    name: "WiFi Signal Sensor"
+    id: clock_wifisignal
+    update_interval: 60s
+
+text_sensor:
+  - platform: homeassistant
+    id: top_consumer
+    entity_id: sensor.iotawatt_top_consumer
+    internal: true
+
+  - platform: homeassistant
+    name: forecast
+    id: weather_forecast
+    entity_id: sensor.forecast
+    internal: true
+
+  - platform: homeassistant
+    name: forecast
+    id: weather_forecast_today
+    entity_id: sensor.forecast_today
+    internal: true
+
+  - platform: homeassistant
+    id: moon_icon
+    entity_id: sensor.moon_tpl
+    internal: true
+    
 
 display:
   - platform: waveshare_epaper
@@ -149,7 +214,7 @@ display:
     reset_pin: 4
     dc_pin: 12
     model: 4.20in
-    update_interval: 900s
+    update_interval: 300s
     lambda: |
       int x, y;
       ESP_LOGI("display", "Updating..");
@@ -170,7 +235,8 @@ display:
         ESP_LOGI("Moon icon", "%s", id(moon_icon).state.c_str());
         it.printf(x, y, id(weather_font), TextAlign::BASELINE_CENTER, "%s", id(moon_icon).state.c_str());
       }
-      /* WiFi Signal Strenght */
+      /* WiFi Signal Strength */
+      
       if(id(clock_wifisignal).has_state()) {
         x = 398, y = 298;
         if (id(clock_wifisignal).state >= -50) {
@@ -280,69 +346,3 @@ light:
   - platform: binary
     name: "Onboard LED"
     output: onboard_led
-
-time:
-  - platform: homeassistant
-    id: current_time
-    timezone: America/New_york
-
-sensor:
-  - platform: homeassistant
-    id: inside_temperature
-    entity_id: sensor.bedroomlamp1_ds18b20_temperature
-    internal: true
-    
-  - platform: homeassistant
-    id: outside_temperature
-    entity_id: sensor.openweathermap_feels_like_temperature
-    internal: true
-
-  - platform: homeassistant
-    entity_id: sensor.sparsnas_energy_consumption_momentary
-    id: sparsnas
-    internal: true
-
-  - platform: homeassistant
-    entity_id: sensor.openweathermap_forecast_precipitation_probability
-    id: precip_probability
-    internal: true
-
-    
-  - platform: dallas
-    address: 0x700516738E4FFF28
-    name: "Clock Temp"
-    internal: true
-
-    
-  - platform: adc
-    pin: VCC
-    name: "VCC Voltage"
-    internal: true
-    
-  - platform: wifi_signal
-    name: "WiFi Signal Sensor"
-    id: clock_wifisignal
-    update_interval: 60s
-
-text_sensor:
-  - platform: homeassistant
-    id: top_consumer
-    entity_id: sensor.iotawatt_top_consumer
-    internal: true
-
-  - platform: homeassistant
-    name: forecast
-    id: weather_forecast
-    entity_id: sensor.forecast
-    internal: true
-
-  - platform: homeassistant
-    name: forecast
-    id: weather_forecast_today
-    entity_id: sensor.forecast_today
-    internal: true
-
-  - platform: homeassistant
-    id: moon_icon
-    entity_id: sensor.moon_tpl
-    internal: true
