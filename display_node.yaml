@@ -5,19 +5,12 @@ esphome:
   on_boot:
     priority: -10
     then:
-      - delay: 10s
+      - delay: 20s
       - component.update: epaperdisplay
       
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "Espforcast Fallback Hotspot"
-    password: "Password"
-
-captive_portal:
 
 # Enable logging
 logger:
@@ -30,11 +23,6 @@ ota:
 spi:
   clk_pin: 14
   mosi_pin: 13
-  
-
-dallas:
-  - pin: GPIO5
-    update_interval: 600s
 
 font:
   - file: 'fonts/Google_Sans_Bold.ttf'
@@ -141,7 +129,9 @@ font:
       ]
 
 time:
-  - platform: sntp
+  # Choose one or the other not both here
+  #- platform: sntp
+  - platform: homeassistant
     id: current_time
     timezone: UTC−05:00
 
@@ -157,19 +147,8 @@ sensor:
     internal: true
     
   - platform: homeassistant
-    entity_id: sensor.sparsnas_energy_consumption_momentary
-    id: sparsnas
-    internal: true
-
-  - platform: homeassistant
     entity_id: sensor.openweathermap_forecast_precipitation_probability
     id: precip_probability
-    internal: true
-
-    
-  - platform: dallas
-    address: 0x700516738E4FFF28
-    name: "Clock Temp"
     internal: true
 
   - platform: adc
@@ -228,39 +207,9 @@ display:
       it.line(0, 200, 242, 200);
       it.line(0, 201, 242, 201);
       it.line(0, 202, 242, 202);
+      it.line(0, 299, 400, 299);
       
-       /*Moon icon */
-      if(id(moon_icon).has_state()) {
-        y = 155, x = 225;
-        ESP_LOGI("Moon icon", "%s", id(moon_icon).state.c_str());
-        it.printf(x, y, id(weather_font), TextAlign::BASELINE_CENTER, "%s", id(moon_icon).state.c_str());
-      }
-      /* WiFi Signal Strength */
-      
-      if(id(clock_wifisignal).has_state()) {
-        x = 398, y = 298;
-        if (id(clock_wifisignal).state >= -50) {
-            /*Excellent*/
-            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0925");
-            ESP_LOGI("WiFi", "Exellent");
-        } else if (id(clock_wifisignal).state  >= -60) {
-            /*Good*/
-            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0925");
-            ESP_LOGI("WiFi", "Good");
-        } else if (id(clock_wifisignal).state  >= -67) {
-            /*Fair*/
-            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0922");
-            ESP_LOGI("WiFi", "Fair");
-        } else if (id(clock_wifisignal).state  >= -70) {
-            /*Weak*/
-            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F091F");
-            ESP_LOGI("WiFi", "Weak");
-        } else {
-            /*Unlikely working signal*/
-            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F092F");
-            ESP_LOGI("WiFi", "Unlikely");
-        }
-      }
+
       /*Current weather*/
       if(id(weather_forecast_today).has_state()) {
         std::string str = id(weather_forecast_today).state;
@@ -289,7 +238,7 @@ display:
         }
       }
       /* Print inside temperature (from homeassistant sensor)*/
-      y = 135, x = 102;
+      y = 140, x = 110;
       if (id(inside_temperature).has_state()) {
         it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0F55");
         it.printf(x+2, y, id(temp_font), TextAlign::BOTTOM_LEFT , "%5.1f°", id(inside_temperature).state);
@@ -299,12 +248,14 @@ display:
         it.print(x, y, id(icon_font), TextAlign::TOP_RIGHT, "\U000F0F54"); 
         it.printf(x+2, y, id(temp_font), TextAlign::TOP_LEFT, "%5.1f°", id(outside_temperature).state);
       }
-      // Print consumer
-      if (id(top_consumer).has_state()) {
-        it.printf(0, 220, id(status_font), TextAlign::BOTTOM_LEFT , "Total: %.0f W, %s W", id(sparsnas).state, id(top_consumer).state.c_str());
+  
+      /*Moon icon */
+      if(id(moon_icon).has_state()) {
+        y = 155, x = 220;
+        ESP_LOGI("Moon icon", "%s", id(moon_icon).state.c_str());
+        it.printf(x, y, id(weather_font), TextAlign::BASELINE_CENTER, "%s", id(moon_icon).state.c_str());
       }
-       it.line(0, 299, 400, 299);
-     
+      
       if(id(weather_forecast).has_state()) {
         std::string str = id(weather_forecast).state;
         ESP_LOGI("Weather", "%s", str.c_str());
@@ -334,15 +285,30 @@ display:
           y += 2;
         }
       }
-
-output:
-  - platform: gpio
-    id: onboard_led
-    pin:
-      number: 2
-      inverted: False
-
-light:
-  - platform: binary
-    name: "Onboard LED"
-    output: onboard_led
+      
+        /* WiFi Signal Strength */
+      
+      if(id(clock_wifisignal).has_state()) {
+        x = 398, y = 298;
+        if (id(clock_wifisignal).state >= -50) {
+            /*Excellent*/
+            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0925");
+            ESP_LOGI("WiFi", "Exellent");
+        } else if (id(clock_wifisignal).state  >= -60) {
+            /*Good*/
+            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0925");
+            ESP_LOGI("WiFi", "Good");
+        } else if (id(clock_wifisignal).state  >= -67) {
+            /*Fair*/
+            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F0922");
+            ESP_LOGI("WiFi", "Fair");
+        } else if (id(clock_wifisignal).state  >= -70) {
+            /*Weak*/
+            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F091F");
+            ESP_LOGI("WiFi", "Weak");
+        } else {
+            /*Unlikely working signal*/
+            it.print(x, y, id(icon_font), TextAlign::BOTTOM_RIGHT, "\U000F092F");
+            ESP_LOGI("WiFi", "Unlikely");
+        }
+      }
