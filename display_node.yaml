@@ -24,6 +24,10 @@ spi:
   clk_pin: 14
   mosi_pin: 13
 
+dallas:
+  - pin: GPIO5
+    update_interval: 600s
+
 font:
   - file: 'fonts/Google_Sans_Bold.ttf'
     id: clock_font
@@ -71,8 +75,9 @@ font:
       "\U000F0590", # mdi-weather-cloudy
       "\U000F0597", # mdi-weather-rainy
       "\U000F0596", # mdi-weather-pouring
+      "\U000F0598", # mdi-weather-snowy
       "\U000F067F", # mdi-weather-snowy-rainy
-      "\U000F0598", # mdi-weather-snowy-heavy
+      "\U000F0F36", # mdi-weather-snowy-heavy
       "\U000F059D", # mdi-weather-windy-variant
       "\U000F0591", # mdi-weather-fog
       "\U000F0F31", # mdi-weather-night-partly-cloudy
@@ -111,8 +116,9 @@ font:
       "\U000F0590", # mdi-weather-cloudy
       "\U000F0597", # mdi-weather-rainy
       "\U000F0596", # mdi-weather-pouring
+      "\U000F0598", # mdi-weather-snowy
       "\U000F067F", # mdi-weather-snowy-rainy
-      "\U000F0598", # mdi-weather-snowy-heavy
+      "\U000F0F36", # mdi-weather-snowy-heavy
       "\U000F059D", # mdi-weather-windy-variant
       "\U000F0591", # mdi-weather-fog
       "\U000F0F31", # mdi-weather-night-partly-cloudy
@@ -160,6 +166,11 @@ sensor:
     name: "WiFi Signal Sensor"
     id: clock_wifisignal
     update_interval: 60s
+    
+  - platform: dallas
+    address: 0x700516738E4FFF28
+    name: "Clock Temp"
+    internal: true
 
 text_sensor:
   - platform: homeassistant
@@ -183,6 +194,7 @@ text_sensor:
     id: moon_icon
     entity_id: sensor.moon_tpl
     internal: true
+  
     
 
 display:
@@ -209,7 +221,6 @@ display:
       it.line(0, 202, 242, 202);
       it.line(0, 299, 400, 299);
       
-
       /*Current weather*/
       if(id(weather_forecast_today).has_state()) {
         std::string str = id(weather_forecast_today).state;
